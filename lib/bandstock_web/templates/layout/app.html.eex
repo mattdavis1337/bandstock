@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Microtipping and digital collectibles platform to help musicians raise money and connect with fans.  Fans get proof of their support that lasts forever.">
+    <meta name="author" content="Matt Davis">
+
+    <title>Bandstock - Microtipping Platform for Music</title>
+    <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>"/>
+
+    <!-- Facebook Pixel Code -->
+    <script>
+      !function(f,b,e,v,n,t,s)
+      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)}(window, document,'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', '266953737394301');
+      fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+      src="https://www.facebook.com/tr?id=266953737394301&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Facebook Pixel Code -->
+
+    <script src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
+    <script src="<%= Routes.static_path(@conn, "/js/three.min.js") %>"></script>
+    <script src="<%= Routes.static_path(@conn, "/js/tween.min.js") %>"></script>
+    <script src="<%= Routes.static_path(@conn, "/js/TrackballControls.js") %>"></script>
+    <script src="<%= Routes.static_path(@conn, "/js/CSS3DRenderer.js") %>"></script>
+    <script src="<%= Routes.static_path(@conn, "/js/dat.gui.min.js") %>"></script>
+    <script src="<%= Routes.static_path(@conn, "/js/stats.min.js") %>"></script>
+  </head>
+
+  <body>
+    <%= render @view_module, @view_template, assigns %>
+    <script type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
+  </body>
+</html>
