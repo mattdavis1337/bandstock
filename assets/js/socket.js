@@ -62,12 +62,11 @@ window.onload = function() {
   console.log("Loading Sockets...")
   let channel = socket.channel("board:26", {}); //TODOMFD: THis is a hard coded Database ID, needs changed!
 
-  console.log('channel.join')
   channel.join()
     .receive("ok", resp => {
       console.log("...Sockets Loaded", resp);
       var event = new Event("initBoard");
-      event.board = resp.board;
+      event.board = resp.board.data;
       window.dispatchEvent(event);
     })
     .receive("error", resp => { console.log("Unable to join", resp) });
@@ -88,12 +87,47 @@ window.onload = function() {
 
   document.addEventListener( 'keydown', function(event) {
     switch( event.keyCode ) {
-      case 73: /*I*/
-        console.log("pushing board_input");
-        channel.push("board_input", {body: "board_input body"});
+      case 73: //I
+        var event = new Event("keyDownI");
+        window.dispatchEvent(event);
+        //channel.push("board_input", {body: "board_input body"});
+        break;
+      case 85: //U
+        var event = new Event("keyDownU");
+        window.dispatchEvent(event);
         break;
     }
   }, false);
+
+
+  document.addEventListener( 'doJoinChannel', function(event) {
+
+    console.log("doJoinChannel")
+    console.log(event)
+
+    let channel = socket.channel(event.channelID, {});
+    channel.join()
+      .receive("ok", resp => {
+        console.log("doJoinChannel response");
+        console.log(resp.artist.data);
+        var event = new Event("drawArtist");
+        event.artist = resp.artist.data;
+        window.dispatchEvent(event);
+      })
+      .receive("error", resp => { console.log("Unable to join " + event.channelID, resp) });
+
+    channel.on("channel_output", payload => {
+      if(payload.type == "place_tile"){
+        console.log(payload);
+        var event = new Event("placeTile");
+        // var tile1 = {x: payload.body.tile1.x, y:payload.body.tile1.y}
+        // var tile2 = {x: payload.body.tile2.x, y:payload.body.tile2.y}
+        // event.tile1 = tile1;
+        // event.tile2 = tile2;
+        window.dispatchEvent(event);
+      }
+    })
+  });
 };
 
 export default socket

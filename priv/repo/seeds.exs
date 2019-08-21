@@ -20,7 +20,8 @@
 #
 #Bandstock.Repo.insert!(%Bandstock.Schema.Board{})
 
-Bandstock.Game.gen_board()
+#Bandstock.Game.gen_board()
+Bandstock.Artists.gen_artists()
 #
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.

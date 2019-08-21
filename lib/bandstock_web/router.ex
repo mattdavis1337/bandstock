@@ -17,6 +17,9 @@ defmodule BandstockWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+
+    resources "/artists", ArtistController
+
   end
 
   # Other scopes may use custom stacks.

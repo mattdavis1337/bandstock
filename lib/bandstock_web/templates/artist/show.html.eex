@@ -1,0 +1,221 @@
+
+<!--
+<h1>Show Artist</h1>
+
+<ul>
+
+  <li>
+    <strong>Name:</strong>
+    <%= @artist.name %>
+  </li>
+
+  <li>
+    <strong>Facebook:</strong>
+    <%= @artist.facebook %>
+  </li>
+
+</ul>
+
+<span><%= link "Edit", to: Routes.artist_path(@conn, :edit, @artist) %></span>
+<span><%= link "Back", to: Routes.artist_path(@conn, :index) %></span>
+
+-->
+<script>
+
+
+  var SCREEN_WIDTH = window.innerWidth;
+  var SCREEN_HEIGHT = window.innerHeight;
+  var aspect = SCREEN_WIDTH / SCREEN_HEIGHT;
+  var container, stats;
+  var camera, scene, renderer, mesh, mesh3;
+  var cameraRig, activeCamera, activeHelper;
+  var cameraPerspective, cameraOrtho;
+  var cameraPerspectiveHelper, cameraOrthoHelper;
+  var frustumSize = 600;
+  var tiles = [...Array(11)].map(e => Array(11));
+  console.log('hi')
+  initChannel();
+
+  window.addEventListener( 'initBoard', init, false);
+  window.addEventListener( 'drawArtist', drawArtist, false);
+  window.addEventListener( 'keyDownI', moveTilesRight, false);
+  window.addEventListener( 'keyDownU', moveTilesLeft, false);
+
+  function init(event) {
+    initContainer();
+    initScene();
+
+    addEventListeners();
+
+    addCameras();
+    addMeshes();
+    addLight();
+    addStarscape();
+    addRenderer();
+
+    animate();
+  }
+
+/* 3.JS Scene Setup */
+  function initContainer(){
+    container = document.createElement( 'div' );
+    container.setAttribute("id", "artistContainer");
+    document.body.appendChild( container );
+  }
+  function initScene(){
+      scene = new THREE.Scene();
+  }
+  function addEventListeners(){
+    window.addEventListener( 'resize', onWindowResize, false );
+  }
+  function addCameras(){
+
+    cameraPerspective = new THREE.PerspectiveCamera( 50, aspect, 100, 10000 );
+    cameraPerspectiveHelper = new THREE.CameraHelper( cameraPerspective );
+    scene.add( cameraPerspectiveHelper );
+    //
+    //cameraOrtho = new THREE.OrthographicCamera( frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 150, 1000 );
+    //cameraOrthoHelper = new THREE.CameraHelper( cameraOrtho );
+    //scene.add( cameraOrthoHelper );
+    //
+    activeCamera = cameraPerspective;
+    activeHelper = cameraPerspectiveHelper;
+    // counteract different front orientation of cameras vs rig
+    //cameraOrtho.rotation.y = Math.PI;
+    cameraPerspective.rotation.y = Math.PI;
+    cameraRig = new THREE.Group();
+    cameraRig.add( cameraPerspective );
+    //cameraRig.add( cameraOrtho );
+    scene.add( cameraRig );
+  }
+  function addMeshes(){
+    mesh = new THREE.Mesh(
+      new THREE.SphereBufferGeometry( 10, 1, 1 ),
+      new THREE.MeshBasicMaterial( { color: 0xff00ff, wireframe: true } )
+    );
+    mesh.position.z = 0;
+    mesh.visible = true;
+    scene.add( mesh );
+    cameraRig.add( mesh );
+  }
+  function addLight(){
+    var light = new THREE.DirectionalLight( 0xffffff );
+    light.position.set( 0, 2, 1 ).normalize();
+
+    var mesh5 = new THREE.Mesh(
+      new THREE.SphereBufferGeometry( 30, 30, 30 ),
+      new THREE.MeshBasicMaterial( { color: 0xffffff, wireframe: true } )
+    );
+    light.add(mesh5);
+    scene.add(light);
+  }
+  function addStarscape(){
+    var geometry = new THREE.BufferGeometry();
+    var vertices = [];
+    for ( var i = 0; i < 10000; i ++ ) {
+      vertices.push(  THREE.Math.randFloatSpread( 2000 ) ); // x
+      vertices.push(  THREE.Math.randFloatSpread( 2000 ) ); // y
+      vertices.push(  THREE.Math.randFloatSpread( 2000 ) ); // z
+    }
+    geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+    var particles = new THREE.Points( geometry, new THREE.PointsMaterial( { color: 0x888888 } ) );
+    scene.add( particles );
+  }
+  function addRenderer(){
+    renderer = new THREE.WebGLRenderer( { antialias: true } );
+    renderer.setPixelRatio( window.devicePixelRatio );
+    renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
+    container.appendChild( renderer.domElement );
+    renderer.autoClear = false;
+  }
+  function onWindowResize( event ) {
+    SCREEN_WIDTH = window.innerWidth;
+    SCREEN_HEIGHT = window.innerHeight;
+    aspect = SCREEN_WIDTH / SCREEN_HEIGHT;
+    renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
+    cameraPerspective.aspect = aspect;
+    cameraPerspective.updateProjectionMatrix();
+  }
+  function animate() {
+    requestAnimationFrame( animate );
+    render();
+    //stats.update();
+  }
+  function render() {
+    var r = 1;
+
+      cameraPerspective.far = 2000;
+      cameraPerspective.updateProjectionMatrix();
+      cameraPerspectiveHelper.update();
+      cameraPerspectiveHelper.visible = true;
+
+      cameraRig.lookAt( mesh.position );
+      renderer.clear();
+      activeHelper.visible = false;
+      renderer.setViewport( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT );
+      renderer.render( scene, activeCamera );
+      activeHelper.visible = true;
+      //renderer.setViewport( SCREEN_WIDTH/2, 0, SCREEN_WIDTH/2, SCREEN_HEIGHT );
+      //renderer.render( scene, camera );
+    }
+/* End 3.JS Scene Setup */
+
+
+/* Socket/Channel Setup to receive artist event*/
+  function initChannel() {
+      console.log("initChannel...");
+      if (document.readyState !='complete') {
+             // onload event hasn't fired yet, wait 10ms and check again
+             window.setTimeout(initChannel, 10);
+      } else {
+          console.log("firing doJoinChannel");
+          var event = new Event("doJoinChannel");  //listener is in socket.js
+          event.channelID = 'artist:<%= @artist.id %>';
+          document.dispatchEvent(event);
+      }
+    }
+
+    function drawArtist(event){
+      console.log("drawing artist");
+      console.log(event.artist);
+      drawBoard(event.artist.board);
+    }
+
+    function drawBoard(board){
+      board.tiles.forEach(function(element) {
+        var tileWidth = 30;
+        var tileHeight = 40;
+        var margin = 3;
+
+
+        var tile = new THREE.Mesh(
+          new THREE.BoxBufferGeometry( tileWidth, tileHeight, 1 ),
+          new THREE.MeshBasicMaterial( { color: element.color, wireframe: false } )
+        );
+
+        tile.position.z = 200 * element.z;
+        tile.position.x = (element.x*tileWidth) + margin*element.x;
+        tile.position.y = (element.y*tileHeight) + margin*element.y;
+        tiles[element.x][element.y] = tile;
+        mesh.add(tile);
+      });
+    }
+
+    function moveTilesRight(event){
+      var tile = tiles[1][1]
+      tile.position.x += 10;
+      console.log(tile.position.x + "," + tile.position.y + "," + tile.position.z);
+    }
+
+    function moveTilesLeft(event){
+      var tile = tiles[1][1]
+      tile.position.x -= 10;
+      console.log(tile.position.x + "," + tile.position.y + "," + tile.position.z);
+    }
+
+    function drawTile(tile){
+
+
+    }
+
+</script>

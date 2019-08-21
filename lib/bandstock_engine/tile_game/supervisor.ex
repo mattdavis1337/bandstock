@@ -13,34 +13,9 @@ defmodule BandstockEngine.TileGame.Supervisor do
 
   def start_game(key) do
     IO.puts("starting game: " <> key);
-    spec = {TileGame.PeriodicTask, name: {:via, Registry, {BandstockEngine.Registry, key}}}
-
+    spec = {TileGame.PeriodicTask, name: GameEngine}
+    #{:ok, _} = GenServer.start_link(MyApp, [:hello], name: :your_genserver_name)
     DynamicSupervisor.start_child(__MODULE__, spec)
-  end
-
-  def game_exists?(key) do
-    match?({:ok, _game}, lookup(key))
-  end
-
-  def find_game(key) do
-    lookup(key)
-  end
-
-  def find_or_start_game(key) do
-    case lookup(key) do
-      {:ok, game} ->
-        {:ok, game}
-
-      :error ->
-        start_game(key)
-    end
-  end
-
-  defp lookup(key) do
-    case Registry.lookup(BandstockEngine.Registry, key) do
-      [{game, _nil}] -> {:ok, game}
-      _ -> :error
-    end
   end
 
   #children = [

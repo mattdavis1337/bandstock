@@ -206,14 +206,14 @@
       SCREEN_HEIGHT = window.innerHeight;
       aspect = SCREEN_WIDTH / SCREEN_HEIGHT;
       renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
-      camera.aspect = 0.5 * aspect;
+      camera.aspect = aspect;
       camera.updateProjectionMatrix();
 
-      cameraPerspective.aspect = 0.5 * aspect;
+      cameraPerspective.aspect = aspect;
       cameraPerspective.updateProjectionMatrix();
 
-      cameraOrtho.left   = - 0.5 * frustumSize * aspect / 2;
-      cameraOrtho.right  =   0.5 * frustumSize * aspect / 2;
+      cameraOrtho.left   = - frustumSize * aspect / 2;
+      cameraOrtho.right  =   frustumSize * aspect / 2;
       cameraOrtho.top    =   frustumSize / 2;
       cameraOrtho.bottom = - frustumSize / 2;
       cameraOrtho.updateProjectionMatrix();

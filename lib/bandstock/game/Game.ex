@@ -93,7 +93,7 @@ defmodule Bandstock.Game do
     |> Repo.update
   end
 
-  defp gen_hash() do
+  def gen_hash() do
     random_string(8)
   end
 

@@ -2,6 +2,7 @@ defmodule BandstockWeb.BoardChannel do
   use Phoenix.Channel
   alias Bandstock.Repo
   alias BandstockWeb.BoardView
+  alias BandstockEngine.TileGame.Engine
 
   #join returns {:ok, socket} or {:ok, reply, socket}. To deny access, we return {:error, reply}.
 
@@ -18,21 +19,10 @@ defmodule BandstockWeb.BoardChannel do
   end
 
   def join("board:" <> board_id, _params, socket) do
-    IO.puts("[board_channel.ex] Joining board:" <> board_id)
-    IO.puts("params:")
-    IO.inspect(_params)
-    IO.puts("socket:")
-    IO.inspect(socket)
-
-    board = Bandstock.Game.get_board!(board_id) |>
-    Repo.preload(:tiles)
-
-    board_json = BoardView.render("board.json", %{board: board})
-
-    reply = %{"board_id" => board_id, "board" => board_json};
-    IO.puts("Reply")
-
-    #{:error, %{reason: "unauthorized"}}
+    state = GenServer.call(:game_world, {:board_state})
+    reply = %{"board" => BoardView.render("show.json", state)};
+    IO.puts("board reply:");
+    IO.inspect(reply);
     {:ok, reply, socket}
   end
 

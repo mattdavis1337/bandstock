@@ -3,6 +3,7 @@ defmodule BandstockWeb.UserSocket do
 
   ## Channels
   channel "board:*", BandstockWeb.BoardChannel
+  channel "artist:*", BandstockWeb.ArtistChannel
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
